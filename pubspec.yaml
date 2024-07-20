@@ -1,6 +1,6 @@
 name: native_socket
 description: Use unix sockets via file descriptors.
-version: 0.1.0
+version: 0.2.0
 repository: https://github.com/kingwill101/dart_native_socket
 environment:
   sdk: ">3.4.0 <4.0.0"
