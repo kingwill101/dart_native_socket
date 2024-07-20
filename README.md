@@ -14,9 +14,14 @@ The Native Socket Package provides low-level socket and file descriptor operatio
 
 To use this package, add `native_socket` as a dependency in your `pubspec.yaml` file:
 
+> **NOTE:** Currently we are unable to publish packages that depend on hooks/build for native dependencies [see issue](https://github.com/dart-lang/pub-dev/pull/7847)
+
+
 ```yaml
 dependencies:
-  native_socket: ^0.1.1
+  native_socket: 
+      git: 
+        url: https://github.com/dart-lang/pub-dev/pull/7847
 ```
 ## Prerequisites
 To use this package you need to enable the experimental `native-assets` feature
