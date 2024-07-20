@@ -46,6 +46,15 @@ class UnixSocket {
     }
   }
 
+  /// Checks if the Unix domain socket has available data to be read.
+  ///
+  /// If [timeout] is provided, this method will wait up to [timeout] milliseconds
+  /// for data to become available before returning. If [timeout] is 0 (the default),
+  /// the method will return immediately with the current socket state.
+  ///
+  /// Returns `true` if there is data available to be read, `false` otherwise.
+  bool hasData([int timeout = 0]) => socketHasData(_socket);
+
   /// Reads all available data from the Unix domain socket and returns it as a [Uint8List].
   ///
   /// This method reads all the data that is currently available in the socket's receive buffer

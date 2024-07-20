@@ -22,6 +22,12 @@ external int write_to_fd(
   int count,
 );
 
+@ffi.Native<ffi.Int Function(ffi.Int, ffi.Int)>()
+external int socket_has_data(
+  int socket,
+  int timeout,
+);
+
 @ffi.Native<ffi.Int Function(ffi.Pointer<ffi.Char>)>()
 external int create_unix_socket(
   ffi.Pointer<ffi.Char> path,

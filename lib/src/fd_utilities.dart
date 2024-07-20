@@ -167,7 +167,7 @@ SocketMessage readAll(int socket, [int bufferSize = 1024]) {
     }
   }
 
-  if(data.isEmpty){
+  if (data.isEmpty) {
     return SocketMessage(0, Uint8List.fromList([]));
   }
 
@@ -217,4 +217,29 @@ SocketMessage read(int socket, [int size = 1024]) {
 /// - `socket`: The integer file descriptor of the socket to be closed.
 void closeFd(int socket) {
   ns.close_socket(socket);
+}
+
+/// Checks if the specified socket has data available to be read.
+///
+/// This function checks if the specified socket has data available to be read. It uses the `socket_has_data` function
+/// from the `ns` module to perform the check.
+///
+/// Parameters:
+/// - `socket`: The integer file descriptor of the socket to check.
+/// - `timeout`: The timeout in milliseconds to wait for data to become available (default is 0, which means no timeout).
+///
+/// Returns:
+/// - `true` if the socket has data available to be read.
+/// - `false` if the socket does not have data available to be read.
+///
+/// Throws:
+/// - `Exception`: If an error occurs while checking the socket for data.
+bool socketHasData(int socket, [int timeout = 0]) {
+  final result = ns.socket_has_data(socket, timeout);
+  if (result == 1) {
+    return true;
+  } else if (result == 0) {
+    return false;
+  }
+  throw Exception("Error checking socket for data");
 }

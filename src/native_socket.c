@@ -285,3 +285,43 @@ int write_to_fd(int fd, const unsigned char *buffer, size_t count) {
     }
     return result;  // Return the number of bytes written
 }
+
+
+#include <sys/select.h>
+#include <unistd.h>
+#include <errno.h>
+
+/**
+ * Checks if the socket has available data to read.
+ *
+ * @param socket The file descriptor of the socket.
+ * @param timeout The timeout in milliseconds. A negative value means an infinite timeout.
+ * @return 1 if there is data to read, 0 if there is no data to read, -1 on error.
+ */
+int socket_has_data(int socket, int timeout) {
+    fd_set read_fds;
+    struct timeval tv;
+    int ret;
+
+    FD_ZERO(&read_fds);
+    FD_SET(socket, &read_fds);
+
+    if (timeout >= 0) {
+        tv.tv_sec = timeout / 1000;
+        tv.tv_usec = (timeout % 1000) * 1000;
+        ret = select(socket + 1, &read_fds, NULL, NULL, &tv);
+    } else {
+        ret = select(socket + 1, &read_fds, NULL, NULL, NULL);
+    }
+
+    if (ret > 0) {
+        if (FD_ISSET(socket, &read_fds)) {
+            return 1; // Data is available to read
+        }
+    } else if (ret == 0) {
+        return 0; // No data available (timeout)
+    }
+
+    // An error occurred
+    return -1;
+}

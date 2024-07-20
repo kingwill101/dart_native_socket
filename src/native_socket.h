@@ -12,7 +12,7 @@ static int create_tmpfile_cloexec(char *tmpname);
 int os_create_anonymous_file(off_t size);
 
 int write_to_fd(int fd, const unsigned char *buffer, size_t count);
-
+int socket_has_data(int socket, int timeout);
 int create_unix_socket(const char *path);
 void close_socket(int socket);
 
@@ -23,3 +23,4 @@ ssize_t send_bytes(int socket, const void *buffer, size_t length);
 ssize_t send_bytes_with_fd(int socket, int fd, const void *data, size_t data_len);
 
 ssize_t recv_bytes(int socket, void *buffer, size_t length);
+
