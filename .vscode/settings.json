@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.embeddedhtml": "html",
+        "native_socket.h": "c",
+        "fcntl-linux.h": "c",
+        "socket.h": "c",
+        "stdio.h": "c",
+        "unistd.h": "c"
+    }
+}
