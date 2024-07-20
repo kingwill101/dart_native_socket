@@ -66,6 +66,20 @@ void main() {
 }
 ```
 
+Check if socket has data available
+
+```dart
+final socket = UnixSocket('/run/user/1000/wayland-1');
+  socket.send(Uint8List.fromList([1, 2, 3]));
+
+  if (socket.hasData()) {
+    final data = socket.receive();
+    print(data);
+  }
+
+  socket.close();
+```
+
 Working with File Descriptors
 
 
