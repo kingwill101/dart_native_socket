@@ -21,7 +21,7 @@ To use this package, add `native_socket` as a dependency in your `pubspec.yaml` 
 dependencies:
   native_socket: 
       git: 
-        url: https://github.com/dart-lang/pub-dev/pull/7847
+        url: https://github.com/kingwill101/dart_native_socket
 ```
 ## Prerequisites
 To use this package you need to enable the experimental `native-assets` feature
