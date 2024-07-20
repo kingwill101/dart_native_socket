@@ -157,11 +157,11 @@ SocketMessage readAll(int socket, [int bufferSize = 1024]) {
   List<SocketMessage> data = [];
   while (true) {
     try {
-      final read = readAll(socket, bufferSize);
-      if (read.read == 0) {
+      final nxt = read(socket, bufferSize);
+      if (nxt.read == 0) {
         break;
       }
-      data.add(read);
+      data.add(nxt);
     } catch (e) {
       break;
     }

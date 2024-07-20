@@ -1,39 +1,86 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Native Socket 
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages). 
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages). 
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+The Native Socket Package provides low-level socket and file descriptor operations for Dart applications. It offers functionality not available in Dart's built-in Socket class, allowing direct interaction with file descriptors and Unix domain sockets.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- Create and manage Unix domain sockets
+- Perform file descriptor operations
+- Send and receive data with attached file descriptors
+- Create anonymous files and temporary files
+- Non-blocking socket operations
 
-## Getting started
+## Installation
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+To use this package, add `native_socket` as a dependency in your `pubspec.yaml` file:
+
+```yaml
+dependencies:
+  native_socket: ^0.1.1
+```
+## Prerequisites
+To use this package you need to enable the experimental `native-assets` feature
+
+```
+dart --enable-experiment=native-assets run
+```
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
+
+Creating a Unix Socket
 
 ```dart
-const like = 'sample';
+import 'package:native_socket/native_socket.dart';
+
+void main() {
+  final socket = UnixSocket('/path/to/socket');
+  // Use the socket...
+  socket.close();
+}
+
+```
+Sending and receiving data
+
+```dart
+import 'dart:typed_data';
+import 'package:native_socket/native_socket.dart';
+
+void main() {
+  final socket = UnixSocket('/path/to/socket');
+  
+  // Sending data
+  final dataToSend = Uint8List.fromList([1, 2, 3, 4, 5]);
+  socket.send(dataToSend);
+  
+  // Receiving data
+  final receivedData = socket.receive();
+  print('Received: $receivedData');
+  
+  socket.close();
+}
 ```
 
-## Additional information
+Working with File Descriptors
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+
+```dart
+import 'package:native_socket/native_socket.dart';
+
+void main() {
+  // Create an anonymous file
+  final fd = createAnonymousFile(1024);
+  
+  // Write to the file descriptor
+  final dataToWrite = Uint8List.fromList([65, 66, 67, 68]); // "ABCD"
+  writeToFd(fd, dataToWrite);
+  
+  // Close the file descriptor
+  closeFd(fd);
+}
+```
+
+
+## Contributing
+
+Contributions to the Native Socket Package are welcome! Please submit pull requests or open issues on the GitHub repository.
