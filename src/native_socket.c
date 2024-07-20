@@ -149,6 +149,8 @@ void close_socket(int socket)
  * The file is suitable for buffer sharing between processes by
  * transmitting the file descriptor over Unix sockets using the
  * SCM_RIGHTS methods.
+ *
+ * COPIED FROM: https://jan.newmarch.name/Wayland/SharedMemory/
  */
 int os_create_anonymous_file(off_t size)
 {
