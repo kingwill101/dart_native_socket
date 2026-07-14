@@ -11,11 +11,26 @@ import 'native_socket.dart' as ns;
 
 /// A Unix domain socket.
 ///
-/// Supports both stream (`SOCK_STREAM`) and datagram (`SOCK_DGRAM`) modes,
+/// Supports both **stream** (`SOCK_STREAM`) and **datagram** (`SOCK_DGRAM`) modes,
 /// filesystem-path and abstract namespace addressing, and SCM_RIGHTS file
 /// descriptor passing.
 ///
-/// ## Creating a client connection
+/// ## Stream vs Datagram
+///
+/// | Operation | Stream (`SocketType.stream`) | Datagram (`SocketType.datagram`) |
+/// |---|---|---|
+/// | `send()` / `receive()` | ✅ Byte stream (no boundaries) | ❌ |
+/// | `sendTo()` / `receiveFrom()` | ❌ | ✅ Message boundaries preserved |
+/// | `connect()` / `accept()` | ✅ Client-server | ❌ (connectionless) |
+/// | `bind()` | Server socket | Receiver socket |
+/// | `receiveFd()` (SCM_RIGHTS) | ✅ | ✅ |
+///
+/// In stream mode, data is a continuous byte stream — multiple `send()` calls
+/// can merge into one `receive()`.  In datagram mode, each `sendTo()` produces
+/// exactly one message that `receiveFrom()` returns whole — boundaries are
+/// preserved just like UDP over Unix domain sockets.
+///
+/// ## Creating a stream client connection
 ///
 /// ```dart
 /// final socket = UnixSocket.connect(Address.file('/tmp/my.sock'));
@@ -23,11 +38,22 @@ import 'native_socket.dart' as ns;
 /// final data = socket.receive();
 /// ```
 ///
-/// ## Creating a server
+/// ## Creating a stream server
 ///
 /// ```dart
 /// final server = UnixSocket.bind(Address.file('/tmp/server.sock'));
 /// final conn = server.accept();
+/// conn.send(Uint8List.fromList([4, 5, 6]));
+/// ```
+///
+/// ## Using datagram (connectionless) sockets
+///
+/// ```dart
+/// final server = UnixSocket.bind(Address.file('/tmp/dgram.sock'),
+///     type: SocketType.datagram);
+/// final client = UnixSocket.create(type: SocketType.datagram);
+/// client.sendTo(Address.file('/tmp/dgram.sock'), Uint8List.fromList([1, 2]));
+/// final msg = server.receiveFrom(1024); // exactly [1, 2]
 /// ```
 ///
 /// ## Splitting for concurrent read/write
@@ -240,7 +266,11 @@ class UnixSocket {
     return fd;
   }
 
-  /// For datagram sockets: sends [data] to the given [address].
+  /// Sends a datagram with [data] to the given [address].
+  ///
+  /// Only valid on datagram sockets (created with `SocketType.datagram`).
+  /// Each call produces exactly one message on the wire — message boundaries
+  /// are preserved so the receiver's `receiveFrom()` returns the same bytes.
   int sendTo(Address address, Uint8List data) {
     final pathPointer = address.path.toNativeUtf8().cast<ffi.Char>();
     final dataPointer = malloc<ffi.Uint8>(data.length);
@@ -263,9 +293,11 @@ class UnixSocket {
     }
   }
 
-  /// Receives a datagram (up to [maxSize] bytes).
+  /// Receives exactly one datagram (up to [maxSize] bytes).
   ///
-  /// Returns the received data as a [Uint8List].
+  /// Only valid on datagram sockets (created with `SocketType.datagram`).
+  /// Returns the received data as a [Uint8List] — the data corresponds to
+  /// exactly one `sendTo()` call by the sender (message boundary preservation).
   Uint8List receiveFrom([int maxSize = 8192]) {
     final bufferPointer = calloc<ffi.Uint8>(maxSize);
     try {

@@ -501,6 +501,75 @@ void main() {
   });
 
   // ---------------------------------------------------------------------------
+  // Stream vs Datagram mode enforcement
+  // ---------------------------------------------------------------------------
+  group('stream vs datagram mode', () {
+    test('send throws on datagram socket', () {
+      final (a, b) = UnixSocket.pair();
+      try {
+        // socketpair creates stream sockets — datagram can't pair
+        // Instead create a datagram socket and verify send() can't be used
+        final sock = UnixSocket.create(type: SocketType.datagram);
+        expect(
+          () => sock.send(Uint8List.fromList([0x01])),
+          throwsA(isA<Exception>()),
+        );
+        sock.close();
+      } finally {
+        a.close();
+        b.close();
+      }
+    });
+
+    test('datagram socket preserves message boundaries across multiple sends', () {
+      final tmpDir = Directory.systemTemp.path;
+      final serverPath = '$tmpDir/nss_dgram_boundary_${DateTime.now().microsecondsSinceEpoch}.sock';
+
+      final server = UnixSocket.bind(
+        Address.file(serverPath),
+        type: SocketType.datagram,
+      );
+      try {
+        final client = UnixSocket.create(type: SocketType.datagram);
+        try {
+          // Send 3 datagrams of different sizes
+          client.sendTo(Address.file(serverPath), Uint8List.fromList([0x01]));
+          client.sendTo(Address.file(serverPath), Uint8List.fromList([0x02, 0x03]));
+          client.sendTo(Address.file(serverPath), Uint8List.fromList([0x04, 0x05, 0x06]));
+          sleep(const Duration(milliseconds: 100));
+
+          // Each receiveFrom returns exactly the bytes from one sendTo
+          expect(server.receiveFrom(1024), equals([0x01]));
+          expect(server.receiveFrom(1024), equals([0x02, 0x03]));
+          expect(server.receiveFrom(1024), equals([0x04, 0x05, 0x06]));
+        } finally {
+          client.close();
+        }
+      } finally {
+        server.closeAndUnlink();
+      }
+    });
+
+    test('stream socket does not preserve message boundaries', () {
+      // With a stream socket, two sends can merge into one receive
+      final (a, b) = UnixSocket.pair();
+      try {
+        a.send(Uint8List.fromList([0x01]));
+        a.send(Uint8List.fromList([0x02, 0x03]));
+        sleep(const Duration(milliseconds: 100));
+
+        // Stream may merge — the receive returns at least the first byte
+        final data = b.receive(1024);
+        expect(data.length, greaterThanOrEqualTo(1));
+        expect(data[0], equals(0x01));
+      } finally {
+        a.close();
+        b.close();
+      }
+    });
+  });
+
+  // ---------------------------------------------------------------------------
   // SocketType enum
   // ---------------------------------------------------------------------------
   group('SocketType', () {
