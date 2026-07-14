@@ -1,5 +1,5 @@
 
-## 0.4.0
+## 0.4.0-wip
 
 - **New high-level Dart API**: `UnixSocket` class with `connect()`, `bind()`, `accept()`,
   `pair()`, `send()`, `receive()`, `sendTo()`, `receiveFrom()`, `split()`
