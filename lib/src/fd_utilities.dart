@@ -18,7 +18,7 @@ import 'native_socket.dart' as ns;
 ///
 /// Throws:
 /// - [Exception]: If an error occurs while writing to the file descriptor.
-writeToFd(int fd, Uint8List data) {
+int writeToFd(int fd, Uint8List data) {
   final pointer = calloc<Uint8>(data.length);
   final buffer = pointer.asTypedList(data.length);
   buffer.setAll(0, data);
