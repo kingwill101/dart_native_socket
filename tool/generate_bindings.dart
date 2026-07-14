@@ -21,7 +21,7 @@ void main() {
     useSupportedTypedefs: true,
     ffiNativeConfig: const FfiNativeConfig(
       enabled: true,
-      assetId: 'package:native_socket/native_socket.dart',
+      assetId: 'package:native_socket/src/native_socket.dart',
     ),
     compilerOpts: [
       '-I/usr/lib/clang/22/include',
