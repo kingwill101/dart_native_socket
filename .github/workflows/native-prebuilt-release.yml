@@ -1,0 +1,13 @@
+name: Native Prebuilt Release
+on:
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Release ${{ inputs.tag }}"

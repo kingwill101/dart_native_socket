@@ -1,0 +1,25 @@
+name: Native Prebuilt Build
+on:
+  workflow_call:
+    inputs:
+      runner:
+        required: true
+        type: string
+      build-script:
+        required: true
+        type: string
+      artifact-name:
+        required: true
+        type: string
+jobs:
+  build:
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+      - run: dart pub get
+      - run: ${{ inputs.build-script }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: build/

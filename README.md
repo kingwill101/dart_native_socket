@@ -4,7 +4,8 @@ Low-level Unix domain socket operations with a high-level Dart API.
 
 Provides stream and datagram Unix domain sockets, filesystem-path and abstract
 namespace addressing, SCM_RIGHTS file descriptor passing, server sockets,
-native (off-heap) buffers, and concurrent read/write via split halves.
+native (off-heap) buffers, concurrent read/write via split halves, and
+prebuilt release assets for Linux.
 
 ## Features
 
@@ -32,6 +33,8 @@ dependencies:
 > ```
 > dart --enable-experiment=native-assets run
 > ```
+>
+> Tag releases publish Linux prebuilt assets from GitHub Releases.
 
 ## Prerequisites
 
@@ -189,6 +192,11 @@ void main() {
 ## API Reference
 
 See the [full API docs on pub.dev](https://pub.dev/documentation/native_socket/latest/).
+
+## Releases
+
+Tag builds use `native_prebuilt` to generate the release manifest and publish
+Linux release assets on GitHub.
 
 ## Contributing
 

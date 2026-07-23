@@ -418,12 +418,12 @@ ssize_t send_bytes(int socket, const void *buffer, size_t length)
 
 ssize_t recv_bytes(int socket, void *buffer, size_t length)
 {
-    ssize_t n = recv(socket, buffer, length, 0);
-    if (n < 0)
-    {
-        return -1; // propagate error to caller
-    }
-    return n; // 0 means clean close, >0 means bytes read
+    ssize_t n;
+    // Retry on EINTR (SIGPROF from CPU profiler).
+    do {
+        n = recv(socket, buffer, length, 0);
+    } while (n < 0 && errno == EINTR);
+    return n;
 }
 
 void close_socket(int socket)
@@ -557,22 +557,27 @@ int socket_has_data(int socket, int timeout) {
     FD_ZERO(&read_fds);
     FD_SET(socket, &read_fds);
 
-    if (timeout >= 0) {
-        tv.tv_sec = timeout / 1000;
-        tv.tv_usec = (timeout % 1000) * 1000;
-        ret = select(socket + 1, &read_fds, NULL, NULL, &tv);
-    } else {
-        ret = select(socket + 1, &read_fds, NULL, NULL, NULL);
+    // Retry on EINTR — the Dart CPU profiler sends SIGPROF which
+    // interrupts select(). Without retrying, profiling would cause
+    // spurious "connection lost" errors on the Wayland socket.
+    for (;;) {
+        if (timeout >= 0) {
+            tv.tv_sec = timeout / 1000;
+            tv.tv_usec = (timeout % 1000) * 1000;
+            ret = select(socket + 1, &read_fds, NULL, NULL, &tv);
+        } else {
+            ret = select(socket + 1, &read_fds, NULL, NULL, NULL);
+        }
+
+        if (ret >= 0) break;
+        if (errno != EINTR) return -1;
     }
 
     if (ret > 0) {
         if (FD_ISSET(socket, &read_fds)) {
             return 1; // Data is available to read
         }
-    } else if (ret == 0) {
-        return 0; // No data available (timeout)
     }
-
-    // An error occurred
-    return -1;
+    // ret == 0: timeout, no data
+    return 0;
 }

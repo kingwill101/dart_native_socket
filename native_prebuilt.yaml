@@ -1,0 +1,13 @@
+schema: 1
+package: native_socket
+asset_name: src/native_socket.dart
+library_stem: native_socket
+release:
+  provider: github
+  repository: kingwill101/dart_native_socket
+  tag: native_socket-v0.4.0
+artifacts:
+  linux-x64:
+    archive: native_socket-linux-x64.tar.gz
+    payload:
+      type: dynamic_library
