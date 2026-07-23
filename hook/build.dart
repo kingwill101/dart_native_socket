@@ -15,23 +15,43 @@ void main(List<String> args) async {
     }
 
     final packageName = input.packageName;
+    final sourceBuilder = CBuilder.library(
+      name: packageName,
+      packageName: packageName,
+      assetName: 'src/$packageName.dart',
+      sources: const [
+        'src/native_socket.c',
+      ],
+    );
+
     await PrebuiltCodeAssetBuilder(
       assetName: 'src/$packageName.dart',
       libraryStem: 'native_socket',
       manifest: native_socketPrebuilts,
       linkModeResolver: (code) => DynamicLoadingBundled(),
-      fallback: CBuilder.library(
-        name: packageName,
-        packageName: packageName,
-        assetName: 'src/$packageName.dart',
-        sources: const [
-          'src/native_socket.c',
+      sourceFallback: SourceFallback(
+        sources: [
+          LocalSource(paths: const ['.']),
         ],
+        builder: CallbackSourceBuilder(
+          callback: ({
+            required source,
+            required input,
+            required output,
+            required logger,
+          }) async {
+            await sourceBuilder.run(
+              input: input,
+              output: output,
+              logger: logger,
+            );
+          },
+        ),
       ),
     ).run(
       input: input,
       output: output,
-      logger: Logger('')
+      logger: Logger.root
         ..level = Level.ALL
         ..onRecord.listen((record) => print(record.message)),
     );

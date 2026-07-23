@@ -25,7 +25,7 @@ prebuilt release assets for Linux.
 
 ```yaml
 dependencies:
-  native_socket: ^0.4.0-wip
+  native_socket: ^0.4.0-wip.3
 ```
 
 > **Note:** This package uses Dart native assets (hooks/build system).

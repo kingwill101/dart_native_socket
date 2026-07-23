@@ -9,8 +9,8 @@ const native_socketPrebuilts = PrebuiltManifest(
   artifacts: {
     'linux-x64': PrebuiltArtifact(
       archiveName: 'native_socket-linux-x64.tar.gz',
-      archiveSha256: 'd311649d2d3d453771c82b1194a4853f0d04103b3deea26f24e39ee669bc52c5',
-      payloadSha256: '321fbfc90f458290f2ea8c9bdb36c935c96455968d1b1c3d090fc47c45f7fdac',
+      archiveSha256: '75104c8275ad45c7e336a6f0b389880bf3c1f1ea7e86886607db32dc56ab9f8a',
+      payloadSha256: '2463d82ec0051233280a9d69c2f9ea4d29babc4cb6cdaa757edb612350e1bbd0',
       payload: DynamicLibraryPayload(libraryStem: 'native_socket', acceptVersionedNames: true),
     ),
   },
