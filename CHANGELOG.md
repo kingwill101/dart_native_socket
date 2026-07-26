@@ -1,7 +1,7 @@
 
 ## 0.4.0-wip.3
 
-- Update `native_prebuilt` dependency to the published 0.1.0 release.
+- Update `native_prebuilt` dependency to the published 0.2.0 release.
 - Declare macOS support via source fallback.
 - Bump the native prebuilt tag to `native_socket-v0.4.0-wip.3`.
 
