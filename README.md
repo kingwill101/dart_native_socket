@@ -7,6 +7,8 @@ namespace addressing, SCM_RIGHTS file descriptor passing, server sockets,
 native (off-heap) buffers, concurrent read/write via split halves, and
 prebuilt release assets for Linux.
 
+macOS is supported via source fallback.
+
 ## Features
 
 - **Stream sockets** (`SOCK_STREAM`) — connection-oriented, ordered, reliable
@@ -35,11 +37,12 @@ dependencies:
 > ```
 >
 > Tag releases publish Linux prebuilt assets from GitHub Releases.
+macOS builds use source fallback.
 
 ## Prerequisites
 
 - Dart SDK `>=3.8.0 <4.0.0`
-- Linux (only platform currently supported)
+- Linux and macOS
 - Clang (for native code compilation via hooks)
 
 ## Usage

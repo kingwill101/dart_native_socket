@@ -1,4 +1,10 @@
 
+## 0.4.0-wip.3
+
+- Update `native_prebuilt` dependency to the published 0.1.0 release.
+- Declare macOS support via source fallback.
+- Bump the native prebuilt tag to `native_socket-v0.4.0-wip.3`.
+
 ## 0.4.0-wip
 
 - **New high-level Dart API**: `UnixSocket` class with `connect()`, `bind()`, `accept()`,
