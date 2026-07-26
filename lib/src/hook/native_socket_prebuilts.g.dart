@@ -5,7 +5,7 @@ import 'package:native_prebuilt/native_prebuilt.dart';
 
 const native_socketPrebuilts = PrebuiltManifest(
   schemaVersion: 1,
-  release: GitHubReleaseSource(owner: 'kingwill101', repository: 'dart_native_socket', tag: 'native_socket-v0.4.0-wip.2'),
+  release: GitHubReleaseSource(owner: 'kingwill101', repository: 'dart_native_socket', tag: 'native_socket-v0.4.0-wip.3'),
   artifacts: {
     'linux-x64': PrebuiltArtifact(
       archiveName: 'native_socket-linux-x64.tar.gz',
