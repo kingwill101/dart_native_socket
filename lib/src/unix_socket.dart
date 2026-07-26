@@ -85,10 +85,7 @@ class UnixSocket {
       if (result != 0) {
         throw Exception('Failed to create socket pair');
       }
-      return (
-        UnixSocket._(sv[0]),
-        UnixSocket._(sv[1]),
-      );
+      return (UnixSocket._(sv[0]), UnixSocket._(sv[1]));
     } finally {
       calloc.free(sv);
     }
@@ -99,7 +96,9 @@ class UnixSocket {
     final cType = 1; // SOCK_STREAM
     final fd = ns.create_socket(cType);
     if (fd == -1) {
-      throw Exception('Failed to create socket for connection to ${address.path}');
+      throw Exception(
+        'Failed to create socket for connection to ${address.path}',
+      );
     }
 
     final pathPointer = address.path.toNativeUtf8().cast<ffi.Char>();
@@ -125,7 +124,9 @@ class UnixSocket {
   /// This is a low-level factory for sockets that are bound but not
   /// connected (e.g., server sockets or datagram receivers).
   static UnixSocket create({SocketType type = SocketType.stream}) {
-    final cType = type == SocketType.stream ? 1 : 2; // SOCK_STREAM = 1, SOCK_DGRAM = 2
+    final cType = type == SocketType.stream
+        ? 1
+        : 2; // SOCK_STREAM = 1, SOCK_DGRAM = 2
     final fd = ns.create_socket(cType);
     if (fd == -1) {
       throw Exception('Failed to create socket');
@@ -138,7 +139,11 @@ class UnixSocket {
   ///
   /// For stream sockets, the socket is automatically set to listen
   /// with the given [backlog].
-  static UnixSocket bind(Address address, {SocketType type = SocketType.stream, int backlog = 128}) {
+  static UnixSocket bind(
+    Address address, {
+    SocketType type = SocketType.stream,
+    int backlog = 128,
+  }) {
     final socket = UnixSocket.create(type: type);
     _bindAddress(socket._fd, address);
     if (type == SocketType.stream) {
@@ -239,7 +244,11 @@ class UnixSocket {
     final bufferPointer = calloc<ffi.Uint8>(size);
     try {
       for (var attempt = 0; attempt < 100; attempt++) {
-        final received = ns.recv_bytes(_fd, bufferPointer.cast<ffi.Void>(), size);
+        final received = ns.recv_bytes(
+          _fd,
+          bufferPointer.cast<ffi.Void>(),
+          size,
+        );
         if (received >= 0) {
           // Copy data out before freeing the backing memory
           final result = Uint8List(received);
@@ -279,9 +288,19 @@ class UnixSocket {
 
       int sent;
       if (address.isAbstract) {
-        sent = ns.send_to_abstract(_fd, pathPointer, dataPointer.cast<ffi.Void>(), data.length);
+        sent = ns.send_to_abstract(
+          _fd,
+          pathPointer,
+          dataPointer.cast<ffi.Void>(),
+          data.length,
+        );
       } else {
-        sent = ns.send_to(_fd, pathPointer, dataPointer.cast<ffi.Void>(), data.length);
+        sent = ns.send_to(
+          _fd,
+          pathPointer,
+          dataPointer.cast<ffi.Void>(),
+          data.length,
+        );
       }
       if (sent == -1) {
         throw Exception('Failed to send datagram');
@@ -302,7 +321,11 @@ class UnixSocket {
     final bufferPointer = calloc<ffi.Uint8>(maxSize);
     try {
       for (var attempt = 0; attempt < 100; attempt++) {
-        final received = ns.recv_from(_fd, bufferPointer.cast<ffi.Void>(), maxSize);
+        final received = ns.recv_from(
+          _fd,
+          bufferPointer.cast<ffi.Void>(),
+          maxSize,
+        );
         if (received >= 0) {
           // Copy data out before freeing the backing memory
           final result = Uint8List(received);
@@ -440,7 +463,11 @@ class SocketReader {
     final bufferPointer = calloc<ffi.Uint8>(size);
     try {
       for (var attempt = 0; attempt < 100; attempt++) {
-        final received = ns.recv_bytes(_fd, bufferPointer.cast<ffi.Void>(), size);
+        final received = ns.recv_bytes(
+          _fd,
+          bufferPointer.cast<ffi.Void>(),
+          size,
+        );
         if (received >= 0) {
           // Copy data out before freeing the backing memory
           final result = Uint8List(received);

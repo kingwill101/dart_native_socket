@@ -60,8 +60,7 @@ void main() {
     late int fd;
 
     setUp(() {
-      final template =
-          '${Directory.systemTemp.path}/native_socket_test_XXXXXX';
+      final template = '${Directory.systemTemp.path}/native_socket_test_XXXXXX';
       final ptr = template.toNativeUtf8().cast<Char>();
       fd = ns.create_tmpfile_cloexec(ptr);
       calloc.free(ptr);
@@ -74,7 +73,13 @@ void main() {
     });
 
     test('writes bytes to a file descriptor', () {
-      final data = Uint8List.fromList([0x48, 0x65, 0x6C, 0x6C, 0x6F]); // "Hello"
+      final data = Uint8List.fromList([
+        0x48,
+        0x65,
+        0x6C,
+        0x6C,
+        0x6F,
+      ]); // "Hello"
       final written = writeToFd(fd, data);
       expect(written, equals(data.length));
     });
@@ -96,8 +101,7 @@ void main() {
 
   group('create_tmpfile_cloexec', () {
     test('creates a temporary file with cloexec flag', () {
-      final path =
-          '${Directory.systemTemp.path}/native_socket_test_XXXXXX';
+      final path = '${Directory.systemTemp.path}/native_socket_test_XXXXXX';
       final pathPointer = path.toNativeUtf8().cast<Char>();
       final tmpFd = ns.create_tmpfile_cloexec(pathPointer);
       calloc.free(pathPointer);
@@ -288,7 +292,11 @@ void main() {
       final verifyData = Uint8List.fromList([0xDE]);
       final verifyPtr = calloc<Uint8>(verifyData.length);
       verifyPtr.asTypedList(verifyData.length).setAll(0, verifyData);
-      final written = ns.write_to_fd(receivedFd, verifyPtr.cast(), verifyData.length);
+      final written = ns.write_to_fd(
+        receivedFd,
+        verifyPtr.cast(),
+        verifyData.length,
+      );
       calloc.free(verifyPtr);
       // memfd supports write, so this should succeed.
       expect(written, equals(verifyData.length));

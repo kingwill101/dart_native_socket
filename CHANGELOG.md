@@ -1,4 +1,18 @@
 
+## 0.4.0-wip.5
+
+- Add `android-arm` prebuilt target.
+- Update `native_prebuilt` dependency to the published 0.2.0 release.
+- Declare macOS support via source fallback.
+- Bump the native prebuilt tag to `native_socket-v0.4.0-wip.5`.
+
+## 0.4.0-wip.4
+
+- Add Android prebuilt targets.
+- Update `native_prebuilt` dependency to the published 0.2.0 release.
+- Declare macOS support via source fallback.
+- Bump the native prebuilt tag to `native_socket-v0.4.0-wip.4`.
+
 ## 0.4.0-wip.3
 
 - Update `native_prebuilt` dependency to the published 0.2.0 release.

@@ -19,9 +19,7 @@ void main(List<String> args) async {
       name: packageName,
       packageName: packageName,
       assetName: 'src/$packageName.dart',
-      sources: const [
-        'src/native_socket.c',
-      ],
+      sources: const ['src/native_socket.c'],
     );
 
     await PrebuiltCodeAssetBuilder(
@@ -34,18 +32,19 @@ void main(List<String> args) async {
           LocalSource(paths: const ['.']),
         ],
         builder: CallbackSourceBuilder(
-          callback: ({
-            required source,
-            required input,
-            required output,
-            required logger,
-          }) async {
-            await sourceBuilder.run(
-              input: input,
-              output: output,
-              logger: logger,
-            );
-          },
+          callback:
+              ({
+                required source,
+                required input,
+                required output,
+                required logger,
+              }) async {
+                await sourceBuilder.run(
+                  input: input,
+                  output: output,
+                  logger: logger,
+                );
+              },
         ),
       ),
     ).run(

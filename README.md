@@ -5,7 +5,7 @@ Low-level Unix domain socket operations with a high-level Dart API.
 Provides stream and datagram Unix domain sockets, filesystem-path and abstract
 namespace addressing, SCM_RIGHTS file descriptor passing, server sockets,
 native (off-heap) buffers, concurrent read/write via split halves, and
-prebuilt release assets for Linux.
+prebuilt release assets for Linux and Android.
 
 macOS is supported via source fallback.
 
@@ -27,7 +27,7 @@ macOS is supported via source fallback.
 
 ```yaml
 dependencies:
-  native_socket: ^0.4.0-wip.3
+  native_socket: ^0.4.0-wip.5
 ```
 
 > **Note:** This package uses Dart native assets (hooks/build system).
@@ -36,14 +36,15 @@ dependencies:
 > dart --enable-experiment=native-assets run
 > ```
 >
-> Tag releases publish Linux prebuilt assets from GitHub Releases.
-macOS builds use source fallback.
+> Tag releases publish Linux and Android (arm64, arm, x64) prebuilt assets from GitHub Releases.
+> macOS builds use source fallback.
 
 ## Prerequisites
 
 - Dart SDK `>=3.8.0 <4.0.0`
-- Linux and macOS
+- Linux, Android, and macOS
 - Clang (for native code compilation via hooks)
+- Android NDK (for Android builds)
 
 ## Usage
 
@@ -199,7 +200,7 @@ See the [full API docs on pub.dev](https://pub.dev/documentation/native_socket/l
 ## Releases
 
 Tag builds use `native_prebuilt` to generate the release manifest and publish
-Linux release assets on GitHub.
+Linux and Android (arm64, arm, x64) release assets on GitHub.
 
 ## Contributing
 

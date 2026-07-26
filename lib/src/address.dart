@@ -28,7 +28,9 @@ class Address {
   factory Address.file(String path) {
     final bytes = _encodePath(path);
     if (bytes.length > 107) {
-      throw ArgumentError('Socket path too long (${bytes.length} bytes, max 107)');
+      throw ArgumentError(
+        'Socket path too long (${bytes.length} bytes, max 107)',
+      );
     }
     return Address._(path, false);
   }
@@ -40,7 +42,9 @@ class Address {
   factory Address.abstract(String name) {
     final bytes = _encodePath(name);
     if (bytes.length > 107) {
-      throw ArgumentError('Abstract socket name too long (${bytes.length} bytes, max 107)');
+      throw ArgumentError(
+        'Abstract socket name too long (${bytes.length} bytes, max 107)',
+      );
     }
     return Address._(name, true);
   }

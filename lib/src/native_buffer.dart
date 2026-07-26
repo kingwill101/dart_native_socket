@@ -56,7 +56,7 @@ class _HeapNativeBuffer implements NativeBuffer {
   final int _length;
 
   _HeapNativeBuffer(this._data, [this._offset = 0, int? length])
-      : _length = length ?? _data.length;
+    : _length = length ?? _data.length;
 
   @override
   int get length => _length;
@@ -65,14 +65,15 @@ class _HeapNativeBuffer implements NativeBuffer {
   bool get isNative => false;
 
   @override
-  Uint8List asTypedList() =>
-      _data.sublist(_offset, _offset + _length);
+  Uint8List asTypedList() => _data.sublist(_offset, _offset + _length);
 
   @override
   ffi.Pointer<ffi.Void> get nativePointer {
     // For heap buffers, allocate a native copy
     final ptr = calloc<ffi.Uint8>(_length);
-    ptr.asTypedList(_length).setAll(0, _data.sublist(_offset, _offset + _length));
+    ptr
+        .asTypedList(_length)
+        .setAll(0, _data.sublist(_offset, _offset + _length));
     return ptr.cast();
   }
 
@@ -85,8 +86,7 @@ class _HeapNativeBuffer implements NativeBuffer {
   }
 
   @override
-  NativeBuffer duplicate() =>
-      _HeapNativeBuffer(_data, _offset, _length);
+  NativeBuffer duplicate() => _HeapNativeBuffer(_data, _offset, _length);
 
   @override
   void free() {
@@ -101,8 +101,8 @@ class _NativeOwnedBuffer implements NativeBuffer {
   bool _freed = false;
 
   _NativeOwnedBuffer(int size)
-      : _pointer = calloc<ffi.Uint8>(size),
-        _length = size;
+    : _pointer = calloc<ffi.Uint8>(size),
+      _length = size;
 
   @override
   int get length => _length;
@@ -111,8 +111,7 @@ class _NativeOwnedBuffer implements NativeBuffer {
   bool get isNative => true;
 
   @override
-  Uint8List asTypedList() =>
-      _pointer.asTypedList(_length);
+  Uint8List asTypedList() => _pointer.asTypedList(_length);
 
   @override
   ffi.Pointer<ffi.Void> get nativePointer => _pointer.cast();
@@ -126,8 +125,7 @@ class _NativeOwnedBuffer implements NativeBuffer {
   }
 
   @override
-  NativeBuffer duplicate() =>
-      _NativeViewBuffer(_pointer, _length, this);
+  NativeBuffer duplicate() => _NativeViewBuffer(_pointer, _length, this);
 
   @override
   void free() {
@@ -154,8 +152,7 @@ class _NativeViewBuffer implements NativeBuffer {
   bool get isNative => true;
 
   @override
-  Uint8List asTypedList() =>
-      _pointer.asTypedList(_length);
+  Uint8List asTypedList() => _pointer.asTypedList(_length);
 
   @override
   ffi.Pointer<ffi.Void> get nativePointer => _pointer.cast();
@@ -169,8 +166,7 @@ class _NativeViewBuffer implements NativeBuffer {
   }
 
   @override
-  NativeBuffer duplicate() =>
-      _NativeViewBuffer(_pointer, _length, _owner);
+  NativeBuffer duplicate() => _NativeViewBuffer(_pointer, _length, _owner);
 
   @override
   void free() {

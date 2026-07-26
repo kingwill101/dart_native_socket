@@ -171,8 +171,12 @@ SocketMessage readAll(int socket, [int bufferSize = 1024]) {
     return SocketMessage(0, Uint8List.fromList([]));
   }
 
-  return data.reduce((a, b) => SocketMessage(
-      a.read + b.read, Uint8List.fromList(a.data.toList()..addAll(b.data))));
+  return data.reduce(
+    (a, b) => SocketMessage(
+      a.read + b.read,
+      Uint8List.fromList(a.data.toList()..addAll(b.data)),
+    ),
+  );
 }
 
 /// Reads data from the specified socket.

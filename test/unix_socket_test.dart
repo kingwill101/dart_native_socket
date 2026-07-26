@@ -25,10 +25,7 @@ void main() {
 
     test('throws on too-long path', () {
       final longPath = '/' * 200;
-      expect(
-        () => Address.file(longPath),
-        throwsArgumentError,
-      );
+      expect(() => Address.file(longPath), throwsArgumentError);
     });
   });
 
@@ -393,7 +390,8 @@ void main() {
     final tmpDir = Directory.systemTemp.path;
 
     test('sendTo and receiveFrom with datagram sockets', () {
-      final serverPath = '$tmpDir/nss_test_dgram_${DateTime.now().microsecondsSinceEpoch}';
+      final serverPath =
+          '$tmpDir/nss_test_dgram_${DateTime.now().microsecondsSinceEpoch}';
 
       final server = UnixSocket.bind(
         Address.file(serverPath),
@@ -403,7 +401,10 @@ void main() {
         final client = UnixSocket.create(type: SocketType.datagram);
         try {
           // Send datagram to server
-          client.sendTo(Address.file(serverPath), Uint8List.fromList([0x41, 0x42]));
+          client.sendTo(
+            Address.file(serverPath),
+            Uint8List.fromList([0x41, 0x42]),
+          );
           sleep(const Duration(milliseconds: 100));
 
           // Receive on server
@@ -418,7 +419,8 @@ void main() {
     });
 
     test('datagram sendTo preserves message boundaries', () {
-      final serverPath = '$tmpDir/nss_test_dgram2_${DateTime.now().microsecondsSinceEpoch}';
+      final serverPath =
+          '$tmpDir/nss_test_dgram2_${DateTime.now().microsecondsSinceEpoch}';
 
       final server = UnixSocket.bind(
         Address.file(serverPath),
@@ -429,7 +431,10 @@ void main() {
         try {
           // Send two separate datagrams
           client.sendTo(Address.file(serverPath), Uint8List.fromList([0x01]));
-          client.sendTo(Address.file(serverPath), Uint8List.fromList([0x02, 0x03]));
+          client.sendTo(
+            Address.file(serverPath),
+            Uint8List.fromList([0x02, 0x03]),
+          );
           sleep(const Duration(milliseconds: 100));
 
           // Each recvFrom should return exactly one datagram
@@ -461,10 +466,7 @@ void main() {
     test('accept on unbound socket throws', () {
       final sock = UnixSocket.create();
       try {
-        expect(
-          () => sock.accept(),
-          throwsA(isA<Exception>()),
-        );
+        expect(() => sock.accept(), throwsA(isA<Exception>()));
       } finally {
         sock.close();
       }
@@ -480,7 +482,8 @@ void main() {
 
     test('closeAndUnlink removes the socket file', () {
       final tmpDir = Directory.systemTemp.path;
-      final path = '$tmpDir/nss_test_cleanup_${DateTime.now().microsecondsSinceEpoch}.sock';
+      final path =
+          '$tmpDir/nss_test_cleanup_${DateTime.now().microsecondsSinceEpoch}.sock';
 
       final sock = UnixSocket.bind(Address.file(path));
       expect(File(path).existsSync(), isTrue);
@@ -491,7 +494,8 @@ void main() {
 
     test('unlink before close cleans up path', () {
       final tmpDir = Directory.systemTemp.path;
-      final path = '$tmpDir/nss_test_unlink_${DateTime.now().microsecondsSinceEpoch}.sock';
+      final path =
+          '$tmpDir/nss_test_unlink_${DateTime.now().microsecondsSinceEpoch}.sock';
 
       final sock = UnixSocket.bind(Address.file(path));
       sock.unlink();
@@ -521,34 +525,44 @@ void main() {
       }
     });
 
-    test('datagram socket preserves message boundaries across multiple sends', () {
-      final tmpDir = Directory.systemTemp.path;
-      final serverPath = '$tmpDir/nss_dgram_boundary_${DateTime.now().microsecondsSinceEpoch}.sock';
+    test(
+      'datagram socket preserves message boundaries across multiple sends',
+      () {
+        final tmpDir = Directory.systemTemp.path;
+        final serverPath =
+            '$tmpDir/nss_dgram_boundary_${DateTime.now().microsecondsSinceEpoch}.sock';
 
-      final server = UnixSocket.bind(
-        Address.file(serverPath),
-        type: SocketType.datagram,
-      );
-      try {
-        final client = UnixSocket.create(type: SocketType.datagram);
+        final server = UnixSocket.bind(
+          Address.file(serverPath),
+          type: SocketType.datagram,
+        );
         try {
-          // Send 3 datagrams of different sizes
-          client.sendTo(Address.file(serverPath), Uint8List.fromList([0x01]));
-          client.sendTo(Address.file(serverPath), Uint8List.fromList([0x02, 0x03]));
-          client.sendTo(Address.file(serverPath), Uint8List.fromList([0x04, 0x05, 0x06]));
-          sleep(const Duration(milliseconds: 100));
+          final client = UnixSocket.create(type: SocketType.datagram);
+          try {
+            // Send 3 datagrams of different sizes
+            client.sendTo(Address.file(serverPath), Uint8List.fromList([0x01]));
+            client.sendTo(
+              Address.file(serverPath),
+              Uint8List.fromList([0x02, 0x03]),
+            );
+            client.sendTo(
+              Address.file(serverPath),
+              Uint8List.fromList([0x04, 0x05, 0x06]),
+            );
+            sleep(const Duration(milliseconds: 100));
 
-          // Each receiveFrom returns exactly the bytes from one sendTo
-          expect(server.receiveFrom(1024), equals([0x01]));
-          expect(server.receiveFrom(1024), equals([0x02, 0x03]));
-          expect(server.receiveFrom(1024), equals([0x04, 0x05, 0x06]));
+            // Each receiveFrom returns exactly the bytes from one sendTo
+            expect(server.receiveFrom(1024), equals([0x01]));
+            expect(server.receiveFrom(1024), equals([0x02, 0x03]));
+            expect(server.receiveFrom(1024), equals([0x04, 0x05, 0x06]));
+          } finally {
+            client.close();
+          }
         } finally {
-          client.close();
+          server.closeAndUnlink();
         }
-      } finally {
-        server.closeAndUnlink();
-      }
-    });
+      },
+    );
 
     test('stream socket does not preserve message boundaries', () {
       // With a stream socket, two sends can merge into one receive

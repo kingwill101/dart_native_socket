@@ -50,10 +50,43 @@ jobs:
           path: built-library/
           if-no-files-found: error
 
+  build-android:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - android-arm64
+          - android-arm
+          - android-x64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+      - name: Install native toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential \
+            clang \
+            cmake \
+            libclang-dev \
+            ninja-build \
+            pkg-config
+      - uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r27d
+      - run: dart pub get
+      - run: dart run native_prebuilt build --target ${{ matrix.target }} --output built-library
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}-built-library
+          path: built-library/
+          if-no-files-found: error
+
   update-manifest:
     if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
     needs:
       - build-linux
+      - build-android
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -62,11 +95,26 @@ jobs:
         with:
           name: linux-built-library
           path: downloaded/linux/
+      - uses: actions/download-artifact@v4
+        with:
+          name: android-arm64-built-library
+          path: downloaded/android-arm64/
+      - uses: actions/download-artifact@v4
+        with:
+          name: android-arm-built-library
+          path: downloaded/android-arm/
+      - uses: actions/download-artifact@v4
+        with:
+          name: android-x64-built-library
+          path: downloaded/android-x64/
       - name: Merge built libraries
         run: |
           rm -rf built-library release-assets
           mkdir -p built-library release-assets
           cp -R downloaded/linux/. built-library/
+          cp -R downloaded/android-arm64/. built-library/
+          cp -R downloaded/android-arm/. built-library/
+          cp -R downloaded/android-x64/. built-library/
       - run: dart pub get
       - name: Generate manifest and release assets
         run: |
