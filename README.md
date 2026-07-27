@@ -27,7 +27,7 @@ macOS is supported via source fallback.
 
 ```yaml
 dependencies:
-  native_socket: ^0.4.0-wip.5
+  native_socket: ^0.4.0
 ```
 
 > **Note:** This package uses Dart native assets (hooks/build system).

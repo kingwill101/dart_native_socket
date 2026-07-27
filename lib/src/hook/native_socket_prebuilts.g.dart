@@ -8,7 +8,7 @@ const native_socketPrebuilts = PrebuiltManifest(
   release: GitHubReleaseSource(
     owner: 'kingwill101',
     repository: 'dart_native_socket',
-    tag: 'native_socket-v0.4.0-wip.5',
+    tag: 'native_socket-v0.4.0',
   ),
   artifacts: {
     'linux-x64': PrebuiltArtifact(
