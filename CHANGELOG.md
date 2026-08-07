@@ -1,4 +1,10 @@
 
+## 0.4.1
+
+- Fix prebuilt hash mismatch: regenerate manifest to `c4cd1a02...`/`68dad7...` matching `native_socket-v0.4.0` release (`7b215320...` was stale, caused `Archive hash mismatch` in `wayland`/`bardash`).
+- Bump `native_prebuilt` to `^0.4.0` (`code_assets ^1.2.1`, `hooks ^2.1.0`, `sdk >=3.10.4`).
+- Fix CI prebuilt merge (flat `linux/` vs nested `android-*/`) and bump GitHub Actions to Node 24 (`checkout@v5`, `upload@v6`, `download@v7`, `git-auto-commit@v7`, `gh-release@v3`).
+
 ## 0.4.0
 
 - Add Android prebuilt targets.
