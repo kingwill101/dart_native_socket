@@ -112,11 +112,13 @@ jobs:
       - name: Merge built libraries
         run: |
           rm -rf built-library release-assets
-          mkdir -p built-library release-assets
-          cp -R downloaded/linux/. built-library/
-          cp -R downloaded/android-arm64/. built-library/
-          cp -R downloaded/android-arm/. built-library/
-          cp -R downloaded/android-x64/. built-library/
+          mkdir -p built-library/linux-x64 built-library/android-arm64 built-library/android-arm built-library/android-x64 release-assets
+          # linux artifact is flat (lib at root), android artifacts are nested <platform>/<platform>/
+          cp downloaded/linux/libnative_socket.so built-library/linux-x64/ 2>/dev/null || cp downloaded/linux/*.so built-library/linux-x64/ 2>/dev/null || true
+          cp downloaded/linux/*.json built-library/linux-x64/ 2>/dev/null || true
+          for p in android-arm64 android-arm android-x64; do
+            if [ -d "downloaded/$p/$p" ]; then cp -R "downloaded/$p/$p/." "built-library/$p/"; else cp -R "downloaded/$p/." "built-library/$p/"; fi
+          done
       - run: dart pub get
       - name: Verify manifest is up-to-date
         run: |
@@ -156,11 +158,13 @@ jobs:
       - name: Merge built libraries
         run: |
           rm -rf built-library release-assets
-          mkdir -p built-library release-assets
-          cp -R downloaded/linux/. built-library/
-          cp -R downloaded/android-arm64/. built-library/
-          cp -R downloaded/android-arm/. built-library/
-          cp -R downloaded/android-x64/. built-library/
+          mkdir -p built-library/linux-x64 built-library/android-arm64 built-library/android-arm built-library/android-x64 release-assets
+          # linux artifact is flat (lib at root), android artifacts are nested <platform>/<platform>/
+          cp downloaded/linux/libnative_socket.so built-library/linux-x64/ 2>/dev/null || cp downloaded/linux/*.so built-library/linux-x64/ 2>/dev/null || true
+          cp downloaded/linux/*.json built-library/linux-x64/ 2>/dev/null || true
+          for p in android-arm64 android-arm android-x64; do
+            if [ -d "downloaded/$p/$p" ]; then cp -R "downloaded/$p/$p/." "built-library/$p/"; else cp -R "downloaded/$p/." "built-library/$p/"; fi
+          done
       - run: dart pub get
       - name: Generate manifest and release assets
         run: |
@@ -214,11 +218,13 @@ jobs:
       - name: Merge built libraries
         run: |
           rm -rf built-library release-assets
-          mkdir -p built-library release-assets
-          cp -R downloaded/linux/. built-library/
-          cp -R downloaded/android-arm64/. built-library/
-          cp -R downloaded/android-arm/. built-library/
-          cp -R downloaded/android-x64/. built-library/
+          mkdir -p built-library/linux-x64 built-library/android-arm64 built-library/android-arm built-library/android-x64 release-assets
+          # linux artifact is flat (lib at root), android artifacts are nested <platform>/<platform>/
+          cp downloaded/linux/libnative_socket.so built-library/linux-x64/ 2>/dev/null || cp downloaded/linux/*.so built-library/linux-x64/ 2>/dev/null || true
+          cp downloaded/linux/*.json built-library/linux-x64/ 2>/dev/null || true
+          for p in android-arm64 android-arm android-x64; do
+            if [ -d "downloaded/$p/$p" ]; then cp -R "downloaded/$p/$p/." "built-library/$p/"; else cp -R "downloaded/$p/." "built-library/$p/"; fi
+          done
       - run: dart pub get
       - name: Verify manifest matches built assets
         run: |
