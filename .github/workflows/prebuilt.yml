@@ -28,7 +28,7 @@ jobs:
   build-linux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dart-lang/setup-dart@v1
       - name: Install native toolchain
         run: |
@@ -46,7 +46,7 @@ jobs:
         run: |
           mkdir -p built-library
           cp -R .dart_tool/lib/. built-library/
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: linux-built-library
           path: built-library/
@@ -61,7 +61,7 @@ jobs:
           - android-arm
           - android-x64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dart-lang/setup-dart@v1
       - name: Install native toolchain
         run: |
@@ -78,7 +78,7 @@ jobs:
           ndk-version: r27d
       - run: dart pub get
       - run: dart run native_prebuilt build --target ${{ matrix.target }} --output built-library
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.target }}-built-library
           path: built-library/
@@ -91,21 +91,21 @@ jobs:
       - build-android
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dart-lang/setup-dart@v1
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: linux-built-library
           path: downloaded/linux/
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: android-arm64-built-library
           path: downloaded/android-arm64/
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: android-arm-built-library
           path: downloaded/android-arm/
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: android-x64-built-library
           path: downloaded/android-x64/
@@ -133,23 +133,23 @@ jobs:
       - build-android
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - uses: dart-lang/setup-dart@v1
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: linux-built-library
           path: downloaded/linux/
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: android-arm64-built-library
           path: downloaded/android-arm64/
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: android-arm-built-library
           path: downloaded/android-arm/
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: android-x64-built-library
           path: downloaded/android-x64/
@@ -171,13 +171,13 @@ jobs:
             --release-assets-dir release-assets
       - name: Verify manifest
         run: dart run native_prebuilt manifest verify --config "$CONFIG" --output "$MANIFEST_OUTPUT"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: release-assets
           path: release-assets/
           if-no-files-found: error
       - name: Auto-commit manifest if changed
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "chore: update prebuilt manifest [skip ci]"
           file_pattern: lib/src/hook/native_socket_prebuilts.g.dart
@@ -193,21 +193,21 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dart-lang/setup-dart@v1
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: linux-built-library
           path: downloaded/linux/
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: android-arm64-built-library
           path: downloaded/android-arm64/
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: android-arm-built-library
           path: downloaded/android-arm/
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: android-x64-built-library
           path: downloaded/android-x64/
@@ -230,13 +230,13 @@ jobs:
           diff -u /tmp/tag.g.dart /tmp/fresh.g.dart || (echo "::error::Tag manifest does not match CI-built assets. Merge the auto-updated manifest from master before tagging. Fresh hashes in /tmp/fresh.g.dart" && exit 1)
           # Use the verified assets for the release
           rm -rf release-assets && cp -R /tmp/fresh-assets release-assets
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: release-assets
           path: release-assets/
           if-no-files-found: error
       - name: Publish GitHub release assets
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}
           fail_on_unmatched_files: true
