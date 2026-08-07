@@ -17,5 +17,5 @@ jobs:
   update-manifest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: dart run native_prebuilt manifest update --config ${{ inputs.config }} --output lib/src/hook/native_socket_prebuilts.g.dart --built-library-dir ${{ inputs.built-library-dir }} --release-assets-dir ${{ inputs.release-assets-dir }}
