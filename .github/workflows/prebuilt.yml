@@ -3,10 +3,12 @@ name: Prebuilt
 on:
   push:
     branches:
-      - main
+      - master
     tags:
       - 'native_socket-v*'
   pull_request:
+    branches:
+      - master
   workflow_dispatch:
     inputs:
       tag:
@@ -15,7 +17,7 @@ on:
         type: string
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   PUB_CACHE: ${{ github.workspace }}/.pub-cache
@@ -82,8 +84,8 @@ jobs:
           path: built-library/
           if-no-files-found: error
 
-  update-manifest:
-    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+  verify-manifest:
+    if: github.event_name == 'pull_request'
     needs:
       - build-linux
       - build-android
@@ -116,34 +118,123 @@ jobs:
           cp -R downloaded/android-arm/. built-library/
           cp -R downloaded/android-x64/. built-library/
       - run: dart pub get
+      - name: Verify manifest is up-to-date
+        run: |
+          dart run native_prebuilt manifest verify --config "$CONFIG" --output "$MANIFEST_OUTPUT"
+          # Also ensure a fresh update would not change the file (detects drift)
+          cp "$MANIFEST_OUTPUT" /tmp/before.g.dart
+          dart run native_prebuilt manifest update --config "$CONFIG" --output /tmp/after.g.dart --built-library-dir built-library --release-assets-dir /tmp/release-assets-verify
+          diff -u /tmp/before.g.dart /tmp/after.g.dart || (echo "::error::Manifest drift detected. Run: dart run native_prebuilt manifest update --built-library-dir built-library && git add $MANIFEST_OUTPUT" && exit 1)
+
+  update-manifest:
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    needs:
+      - build-linux
+      - build-android
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: dart-lang/setup-dart@v1
+      - uses: actions/download-artifact@v4
+        with:
+          name: linux-built-library
+          path: downloaded/linux/
+      - uses: actions/download-artifact@v4
+        with:
+          name: android-arm64-built-library
+          path: downloaded/android-arm64/
+      - uses: actions/download-artifact@v4
+        with:
+          name: android-arm-built-library
+          path: downloaded/android-arm/
+      - uses: actions/download-artifact@v4
+        with:
+          name: android-x64-built-library
+          path: downloaded/android-x64/
+      - name: Merge built libraries
+        run: |
+          rm -rf built-library release-assets
+          mkdir -p built-library release-assets
+          cp -R downloaded/linux/. built-library/
+          cp -R downloaded/android-arm64/. built-library/
+          cp -R downloaded/android-arm/. built-library/
+          cp -R downloaded/android-x64/. built-library/
+      - run: dart pub get
       - name: Generate manifest and release assets
         run: |
-          TAG="${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}"
           dart run native_prebuilt manifest update \
             --config "$CONFIG" \
             --output "$MANIFEST_OUTPUT" \
             --built-library-dir built-library \
-            --release-assets-dir release-assets \
-            --tag "$TAG"
+            --release-assets-dir release-assets
+      - name: Verify manifest
+        run: dart run native_prebuilt manifest verify --config "$CONFIG" --output "$MANIFEST_OUTPUT"
       - uses: actions/upload-artifact@v4
         with:
           name: release-assets
           path: release-assets/
           if-no-files-found: error
+      - name: Auto-commit manifest if changed
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update prebuilt manifest [skip ci]"
+          file_pattern: lib/src/hook/native_socket_prebuilts.g.dart
+          commit_user_name: github-actions[bot]
+          commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
 
   release:
-    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/native_socket-v') || github.event_name == 'workflow_dispatch'
     needs:
-      - update-manifest
+      - build-linux
+      - build-android
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
       - uses: actions/download-artifact@v4
+        with:
+          name: linux-built-library
+          path: downloaded/linux/
+      - uses: actions/download-artifact@v4
+        with:
+          name: android-arm64-built-library
+          path: downloaded/android-arm64/
+      - uses: actions/download-artifact@v4
+        with:
+          name: android-arm-built-library
+          path: downloaded/android-arm/
+      - uses: actions/download-artifact@v4
+        with:
+          name: android-x64-built-library
+          path: downloaded/android-x64/
+      - name: Merge built libraries
+        run: |
+          rm -rf built-library release-assets
+          mkdir -p built-library release-assets
+          cp -R downloaded/linux/. built-library/
+          cp -R downloaded/android-arm64/. built-library/
+          cp -R downloaded/android-arm/. built-library/
+          cp -R downloaded/android-x64/. built-library/
+      - run: dart pub get
+      - name: Verify manifest matches built assets
+        run: |
+          # Fail if the tagged commit's manifest doesn't match CI-built hashes
+          dart run native_prebuilt manifest verify --config "$CONFIG" --output "$MANIFEST_OUTPUT"
+          cp "$MANIFEST_OUTPUT" /tmp/tag.g.dart
+          TAG="${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}"
+          dart run native_prebuilt manifest update --config "$CONFIG" --output /tmp/fresh.g.dart --built-library-dir built-library --release-assets-dir /tmp/fresh-assets --tag "$TAG"
+          diff -u /tmp/tag.g.dart /tmp/fresh.g.dart || (echo "::error::Tag manifest does not match CI-built assets. Merge the auto-updated manifest from master before tagging. Fresh hashes in /tmp/fresh.g.dart" && exit 1)
+          # Use the verified assets for the release
+          rm -rf release-assets && cp -R /tmp/fresh-assets release-assets
+      - uses: actions/upload-artifact@v4
         with:
           name: release-assets
           path: release-assets/
+          if-no-files-found: error
       - name: Publish GitHub release assets
         uses: softprops/action-gh-release@v2
         with:

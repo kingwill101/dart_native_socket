@@ -34,3 +34,6 @@ jobs:
       # Consider passing '--fatal-infos' for slightly stricter analysis.
       - name: Analyze project source
         run: dart analyze
+
+      - name: Verify prebuilt manifest
+        run: dart run native_prebuilt manifest verify
