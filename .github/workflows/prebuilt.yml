@@ -229,7 +229,8 @@ jobs:
       - name: Verify manifest matches built assets
         run: |
           # Fail if the tagged commit's manifest doesn't match CI-built hashes
-          dart run native_prebuilt manifest verify --config "$CONFIG" --output "$MANIFEST_OUTPUT"
+          # Don't download from the not-yet-published tag release — just compare
+          # the tag's g.dart against a freshly generated one from built-library.
           cp "$MANIFEST_OUTPUT" /tmp/tag.g.dart
           TAG="${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}"
           dart run native_prebuilt manifest update --config "$CONFIG" --output /tmp/fresh.g.dart --built-library-dir built-library --release-assets-dir /tmp/fresh-assets --tag "$TAG"
