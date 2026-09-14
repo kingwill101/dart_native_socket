@@ -8,3 +8,6 @@ pubspec.lock
 built-library/
 release-assets/
 downloaded/
+
+# Local prebuilt override (dev machines compile native_socket from source).
+.prebuilt/

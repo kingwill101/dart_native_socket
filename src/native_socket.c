@@ -103,6 +103,60 @@ int recv_fd(int socket)
     return -1;
 }
 
+/// Upper bound on file descriptors harvested per recv_msg_with_fds call.
+/// Wayland messages carry at most a handful; extras would indicate abuse.
+#define RECV_MSG_MAX_FDS 16
+
+/// Receive stream bytes together with any attached SCM_RIGHTS file
+/// descriptors in a single recvmsg call.
+///
+/// Reads up to datalen bytes into data and up to max_fds descriptors into
+/// fds_out (capped at RECV_MSG_MAX_FDS). Returns bytes received, or -1 on
+/// error. *num_fds_out receives the descriptor count (0 when none were
+/// attached). Unlike recv_fd, no stream bytes are lost: this is the only
+/// safe way to receive fds on a byte-stream socket such as Wayland's.
+ssize_t recv_msg_with_fds(int socket, unsigned char *data, size_t datalen,
+                          int *fds_out, int max_fds, int *num_fds_out)
+{
+    struct msghdr msg = {0};
+    struct iovec io = {.iov_base = data, .iov_len = datalen};
+
+    if (max_fds > RECV_MSG_MAX_FDS)
+        max_fds = RECV_MSG_MAX_FDS;
+
+    char c_buffer[CMSG_SPACE(sizeof(int) * RECV_MSG_MAX_FDS)];
+    memset(c_buffer, 0, sizeof(c_buffer));
+
+    msg.msg_iov = &io;
+    msg.msg_iovlen = 1;
+    msg.msg_control = c_buffer;
+    msg.msg_controllen = sizeof(c_buffer);
+
+    ssize_t received = recvmsg(socket, &msg, 0);
+    if (received < 0)
+    {
+        *num_fds_out = 0;
+        return -1;
+    }
+
+    int count = 0;
+    struct cmsghdr *cmsg = CMSG_FIRSTHDR(&msg);
+    if (cmsg && cmsg->cmsg_level == SOL_SOCKET &&
+        cmsg->cmsg_type == SCM_RIGHTS)
+    {
+        int available =
+            (cmsg->cmsg_len - CMSG_LEN(0)) / (int)sizeof(int);
+        if (available < 0)
+            available = 0;
+        if (available > max_fds)
+            available = max_fds;
+        memcpy(fds_out, CMSG_DATA(cmsg), available * sizeof(int));
+        count = available;
+    }
+    *num_fds_out = count;
+    return received;
+}
+
 /// Encode file descriptors into a socket control message buffer.
 void *unix_rights(int *fds, int num_fds, unsigned char *buf, size_t buflen)
 {

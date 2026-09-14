@@ -1,3 +1,10 @@
+## 0.4.2-wip
+
+- Add `recv_msg_with_fds` (C + FFI + `UnixSocket.receiveMessage`): receive
+  stream bytes together with attached SCM_RIGHTS descriptors. Wayland
+  clients need this to receive file descriptors (keyboard keymaps, …);
+  plain `receive()` silently drops them.
+
 
 ## 0.4.1
 

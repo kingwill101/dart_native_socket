@@ -275,6 +275,48 @@ class UnixSocket {
     return fd;
   }
 
+  /// Receives up to [size] bytes together with any attached SCM_RIGHTS file
+  /// descriptors in a single recvmsg call.
+  ///
+  /// Unlike [receive], attached descriptors are harvested instead of
+  /// silently dropped, and unlike [receiveFd], no stream bytes are consumed
+  /// beyond the returned payload. Returns the bytes plus the descriptors in
+  /// arrival order (usually empty).
+  ({Uint8List bytes, List<int> fds}) receiveMessage([int size = 8192]) {
+    final bufferPointer = calloc<ffi.Uint8>(size);
+    final fdsPointer = calloc<ffi.Int>(16);
+    final countPointer = calloc<ffi.Int>(1);
+    try {
+      for (var attempt = 0; attempt < 100; attempt++) {
+        final received = ns.recv_msg_with_fds(
+          _fd,
+          bufferPointer,
+          size,
+          fdsPointer,
+          16,
+          countPointer,
+        );
+        if (received >= 0) {
+          final result = Uint8List(received);
+          result.setRange(0, received, bufferPointer.asTypedList(received));
+          final count = countPointer.value.clamp(0, 16);
+          final fds = <int>[];
+          for (var i = 0; i < count; i++) {
+            fds.add(fdsPointer[i]);
+          }
+          return (bytes: result, fds: fds);
+        }
+        // -1 (likely EAGAIN) — retry after short sleep
+        sleep(const Duration(milliseconds: 5));
+      }
+      throw Exception('Failed to receive data');
+    } finally {
+      calloc.free(bufferPointer);
+      calloc.free(fdsPointer);
+      calloc.free(countPointer);
+    }
+  }
+
   /// Sends a datagram with [data] to the given [address].
   ///
   /// Only valid on datagram sockets (created with `SocketType.datagram`).

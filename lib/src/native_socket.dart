@@ -152,6 +152,25 @@ external int recv_bytes(int socket, ffi.Pointer<ffi.Void> buffer, int length);
 external int recv_fd(int socket);
 
 @ffi.Native<
+  ssize_t Function(
+    ffi.Int,
+    ffi.Pointer<ffi.Uint8>,
+    ffi.Size,
+    ffi.Pointer<ffi.Int>,
+    ffi.Int,
+    ffi.Pointer<ffi.Int>,
+  )
+>()
+external int recv_msg_with_fds(
+  int socket,
+  ffi.Pointer<ffi.Uint8> data,
+  int datalen,
+  ffi.Pointer<ffi.Int> fdsOut,
+  int maxFds,
+  ffi.Pointer<ffi.Int> numFdsOut,
+);
+
+@ffi.Native<
   ffi.Pointer<ffi.Void> Function(
     ffi.Pointer<ffi.Int>,
     ffi.Int,

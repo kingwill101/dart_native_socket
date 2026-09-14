@@ -98,6 +98,8 @@ ssize_t recv_bytes(int socket, void *buffer, size_t length);
 // ---------------------------------------------------------------------------
 
 int recv_fd(int socket);
+ssize_t recv_msg_with_fds(int socket, unsigned char *data, size_t datalen,
+                          int *fds_out, int max_fds, int *num_fds_out);
 void *unix_rights(int *fds, int num_fds, unsigned char *buf, size_t buflen);
 int parse_unix_rights(struct cmsghdr *cm, int *fds, int max_fds);
 size_t c_msg_len(size_t datalen);
