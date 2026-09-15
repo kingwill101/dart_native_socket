@@ -176,7 +176,11 @@ jobs:
             --built-library-dir built-library \
             --release-assets-dir release-assets
       - name: Verify manifest
-        run: dart run native_prebuilt manifest verify --config "$CONFIG" --output "$MANIFEST_OUTPUT"
+        run: |
+          dart run native_prebuilt manifest verify \
+            --config "$CONFIG" \
+            --output "$MANIFEST_OUTPUT" \
+            --built-library-dir built-library
       - uses: actions/upload-artifact@v6
         with:
           name: release-assets
