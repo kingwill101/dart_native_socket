@@ -189,7 +189,7 @@ jobs:
       - name: Auto-commit manifest if changed
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
-          commit_message: "chore: update prebuilt manifest [skip ci]"
+          commit_message: "chore: update prebuilt manifest"
           file_pattern: lib/src/hook/native_socket_prebuilts.g.dart
           commit_user_name: github-actions[bot]
           commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
