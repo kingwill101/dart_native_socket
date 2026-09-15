@@ -27,6 +27,9 @@ void main(List<String> args) async {
       libraryStem: 'native_socket',
       manifest: native_socketPrebuilts,
       linkModeResolver: (code) => DynamicLoadingBundled(),
+      resolvers: shouldBuildFromSource(input)
+          ? const <PrebuiltResolver>[]
+          : null,
       sourceFallback: SourceFallback(
         sources: [
           LocalSource(paths: const ['.']),

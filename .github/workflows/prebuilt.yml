@@ -41,6 +41,8 @@ jobs:
             ninja-build \
             pkg-config
       - run: dart pub get
+      - name: Build Linux library from checked-out source
+        run: dart run native_prebuilt build --target linux-x64 --output .prebuilt --from-source
       - run: dart test
       - name: Stage built library
         run: |
