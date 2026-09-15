@@ -1,4 +1,4 @@
-## 0.4.2-wip
+## 0.4.2
 
 - Add `recv_msg_with_fds` (C + FFI + `UnixSocket.receiveMessage`): receive
   stream bytes together with attached SCM_RIGHTS descriptors. Wayland
